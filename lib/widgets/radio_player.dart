@@ -1,8 +1,15 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:radyo_ikcu/apis/radio_api.dart';
 import 'package:radyo_ikcu/providers/radio_provider.dart';
+import 'package:radyo_ikcu/utils/radio_stations.dart';
+import 'package:radyo_ikcu/widgets/shimmer_widget.dart';
+import 'package:radyo_ikcu/widgets/utils.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:volume_controller/volume_controller.dart';
 
 import 'radio_list.dart';
@@ -63,11 +70,11 @@ class _RadioPlayerState extends State<RadioPlayer>
       ),
     );
 
-    // RadioApi.player.stateStream.listen((event) {
-    //   setState(() {
-    //     isPlaying = event;
-    //   });
-    // });
+    RadioApi.player.stateStream.listen((event) {
+      setState(() {
+        isPlaying = event;
+      });
+    });
     volumeController = VolumeController();
   }
 
@@ -82,6 +89,8 @@ class _RadioPlayerState extends State<RadioPlayer>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+
+                //Resim kısmı
                 Container(
                   height: 200,
                   width: 200,
@@ -94,22 +103,22 @@ class _RadioPlayerState extends State<RadioPlayer>
                     );
                   })),
                 ),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    IconButton(
+
+                    //Liste 
+                              IconButton(
                       onPressed: () {
                         setState(() {
-                          listEnabled = listEnabled;
+                          listEnabled = !listEnabled;
                         });
-                        switch (animationController.status) {
-                          case AnimationStatus.dismissed:
-                            animationController.forward();
-                            break;
-                          case AnimationStatus.completed:
-                            animationController
-                                .removeStatusListener((status) {});
-                          default:
+
+                        if (animationController.status == AnimationStatus.dismissed) {
+                          animationController.forward();
+                        } else if (animationController.status == AnimationStatus.completed) {
+                          animationController.reverse();
                         }
                       },
                       color: listEnabled
@@ -120,21 +129,27 @@ class _RadioPlayerState extends State<RadioPlayer>
                         Icons.list,
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isPlaying ? isPlaying = false : isPlaying = true;
-                          isPlaying
-                              ? RadioApi.player.stop()
-                              : RadioApi.player.play();
-                        });
-                      },
-                      color: Colors.white,
-                      iconSize: 30,
-                      icon: Icon(
-                        isPlaying ? Icons.stop : Icons.play_arrow,
-                      ),
-                    ),
+
+
+                    // Yürütme tuşu 
+               IconButton(
+  onPressed: () async {
+    setState(() {
+      isPlaying = !isPlaying;
+    });
+
+    if (isPlaying) {
+      await RadioApi.player.play();
+    } else {
+      await RadioApi.player.stop();
+    }
+  },
+  color: Colors.white,
+  iconSize: 30,
+  icon: Icon(
+    isPlaying ? Icons.stop : FontAwesomeIcons.circlePlay,
+  ),
+),
                     IconButton(
                       onPressed: () async {
                         if (isMuted) {
@@ -171,9 +186,9 @@ class _RadioPlayerState extends State<RadioPlayer>
                 ),
               ),
             ),
-            child: const Column(
+            child:  Column(
               children: [
-                Padding(
+                const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text(
                     'Radyo Listesi',
@@ -183,14 +198,57 @@ class _RadioPlayerState extends State<RadioPlayer>
                     ),
                   ),
                 ),
-                Divider(
+               const  Divider(
                   color: Colors.black,
                   indent: 30,
                   endIndent: 30,
                 ),
-                Expanded(
-                  child: RadioList(),
-                ),
+        
+
+FutureBuilder(
+  future: Future.delayed(const Duration(seconds: 3)), // 3 saniye gecikme ekledik
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+      // Gecikme sona erdiğinde çalışacak widget'ı oluşturun
+            return const  Expanded(
+                child: RadioList(),
+              );
+ 
+    } else {
+          //  return SizedBox(
+          // width: 200,
+          // height: 300,
+          //    child: ListView.builder(
+          //      itemBuilder: (context,index){
+          //       return ListTile(
+          //                leading: ShimmerWidget.rectengular(
+          //                  height: 16,
+          //                ),
+          //                title: Column(
+          //                  crossAxisAlignment: CrossAxisAlignment.start,
+          //                  children: [
+          //       ShimmerWidget.rectengular(
+          //         height: 16,
+          //       ),
+          //       SizedBox(
+          //         height: context.height * 0.01,
+          //       ),
+          //                  ],
+          //                ),
+          //              );
+          //      }, 
+          //      itemCount: RadioStations.allStation.length,
+          //    ),
+          //  );
+
+          return const Center(
+                  child:  CupertinoActivityIndicator(
+                                radius: 20.0, color: Colors.red),
+                );
+    }
+  },
+)
+
               ],
             ),
           ),

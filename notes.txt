@@ -1,0 +1,7 @@
+SPLASH SCREEN YAML TEKRAR ÇALIŞTIRMAK İÇİN
+dart run flutter_native_splash:create --path=flutter_native_splash.yaml
+
+
+FONT SINIFI VE PAKETİ
+SİTE -> https://fontawesome.com/search?q=play&o=r&m=free
+PKAET -> https://pub.dev/packages/font_awesome_flutter

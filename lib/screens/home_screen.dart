@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
@@ -30,9 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context, snapahot) {
               if (snapahot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: CircularProgressIndicator.adaptive(
-                    backgroundColor: Colors.white,
-                  ),
+                  child:  CupertinoActivityIndicator(
+                                radius: 20.0, color: CupertinoColors.white),
                 );
               }
               return const RadioPlayer();
